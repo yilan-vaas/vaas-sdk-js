@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html lang="zh">
+<head>
+<title>测试jssdk</title>
+<meta name="spm-id" content="10155"/> 
+<link rel="stylesheet" href="https://static.1lan.tv/Transformers/Brawn/ylplayer/prod/1.0.9/ylplayer.min.css" />
+<script type="text/javascript" src="https://static.1lan.tv/Transformers/Starscream/ylspm/0.0.1/index.js"></script>
+<script type="text/javascript" src="https://static.1lan.tv/Transformers/Starscream/vaassdk/0.0.1/index.js"></script>
+<script type="text/javascript" src="https://static.1lan.tv/Transformers/Brawn/ylplayer/prod/1.0.9/ylplayer.min.js"></script>
+
+<style>
+    pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; display : none;}
+    .string { color: green; }
+    .number { color: darkorange; }
+    .boolean { color: blue; }
+    .null { color: magenta; }
+    .key { color: red; }
+</style>
+
+<style>
+    button {width:150px; height:60px; margin-left:20px;}
+</style>
+
+<script type="text/javascript"> 
+var VaaS = new VaaSSDK({
+    //替换 key和token
+    access_key: 'your access key',access_token:'your access token',
+    debug:true});
+
+//获取视频信息流
+function getFeed(){
+    //替换 channel_id
+    VaaS.getFeed({channel_id: 1291,video_type: 1,load_type: 2,size: 8}
+        , function (res) {
+            document.getElementById("feed").style.display="block";
+            $('#feed').html(syntaxHighlight(res));
+        });
+}
+//获取频道
+function getChannel(){
+    VaaS.getChannels({video_type: 1}
+        , function (res) {
+            document.getElementById("channel").style.display="block";
+            $('#channel').html(syntaxHighlight(res));
+        });
+}
+//获取相关视频
+function getRelation(){
+    VaaS.getRelation({id: '视频id',size: 2}
+        , function (res) {
+            document.getElementById("relation").style.display="block";
+            $('#relation').html(syntaxHighlight(res));
+        });
+}
+//获取视频详情
+function getVideos(){
+    VaaS.getVideos({ids: '视频id',video_type: 1}
+        , function (res) {
+            document.getElementById("videos").style.display="block";
+            $('#videos').html(syntaxHighlight(res));
+        });
+}
+//获取播放信息
+function getPlay(){
+    VaaS.getPlay({id: '视频id'}
+        , function (res) {
+            document.getElementById("play").style.display="block";
+            $('#play').html(syntaxHighlight(res));
+        });
+}
+//获取作者详情
+function getCpInfo(){
+    VaaS.getCpInfo({id: '作者id',video_type: 1}
+        , function (res) {
+            document.getElementById("cpinfo").style.display="block";
+            $('#cpinfo').html(syntaxHighlight(res));
+        });
+}
+//获取作者视频列表
+function getCpVideos(){
+    VaaS.getCpVideos({video_type: 1,id: '作者id',page:1,size: 8}
+        , function (res) {
+            document.getElementById("cpvideos").style.display="block";
+            $('#cpvideos').html(syntaxHighlight(res));
+        });
+}
+//以json格式展示返回结果
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+//清空结果
+function reset(){
+    var ids = ["feed","channel","relation","videos","play","cpinfo","cpvideos"];
+    for (var i = 0; i < ids.length; i++){
+        document.getElementById(ids[i]).style.display="none";
+        document.getElementById(ids[i]).value="";
+    }
+}
+//调用播放器
+function test_play(){
+    let player = null
+    function getPlayer() {
+        player = new YLPlayer({
+        container: document.getElementById("J_ylplayer"),
+        trackLogParams: {
+            videoId: "视频id",
+            // 替换 access key
+            accesskey: "your access key", 
+        },});
+    }
+    getPlayer();
+}
+
+
+</script>
+</head>
+
+<body>
+<div>
+  <div style="font-size:30px;margin-left:20px;margin-top:20px;float:left;">该页面是vaas jssdk测试页面,点击按钮测试对应功能</div>
+  <button onClick="reset()" style="width:80px; height:40px;font-size:5px;margin-left:20px;margin-top:20px;">清空结果</button>
+</div>
+<br>
+<button onClick="getFeed()">获取视频信息流</button><br>
+<pre id="feed"></pre>
+<br>
+<button onClick="getChannel()">获取频道</button><br>
+<pre id="channel"></pre>
+<br>
+<button onClick="getRelation()">获取相关视频</button><br>
+<pre id="relation"></pre>
+<br>
+<button onClick="getVideos()">获取视频详情</button><br>
+<pre id="videos"></pre>
+<br>
+<button onClick="getPlay()">获取播放信息</button><br>
+<pre id="play"></pre>
+<br>
+<button onClick="getCpInfo()">获取作者详情</button><br>
+<pre id="cpinfo"></pre>
+<br>
+<button onClick="getCpVideos()">获取作者视频列表</button><br>
+<pre id="cpvideos"></pre>
+<br>
+<button onClick="test_play()">播放器</button><br>
+<div id="J_ylplayer" style="width:1400px; height:600px;margin-left:20px;margin-top:20px;"></div>
+
+</body>
+</html>
